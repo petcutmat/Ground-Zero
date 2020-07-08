@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 9020145825420267304}
   - component: {fileID: 9020145825420267002}
   - component: {fileID: 9020145825420267226}
-  - component: {fileID: 9020145825420264282}
   m_Layer: 0
   m_Name: 4
   m_TagString: Untagged
@@ -56,6 +55,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -67,6 +67,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -92,19 +93,6 @@ SphereCollider:
   serializedVersion: 2
   m_Radius: 0.5
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &9020145825420264282
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9020145825420265574}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 533b4ba83ff37e946b2142e2e5ad0836, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  sideValue: 3
 --- !u!1 &9020145825420265785
 GameObject:
   m_ObjectHideFlags: 0
@@ -117,7 +105,6 @@ GameObject:
   - component: {fileID: 9020145825420266567}
   - component: {fileID: 9020145825420266857}
   - component: {fileID: 9020145825420267250}
-  - component: {fileID: 9020145825420263551}
   m_Layer: 0
   m_Name: 1
   m_TagString: Untagged
@@ -161,6 +148,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -172,6 +160,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -197,19 +186,6 @@ SphereCollider:
   serializedVersion: 2
   m_Radius: 0.5
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &9020145825420263551
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9020145825420265785}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 533b4ba83ff37e946b2142e2e5ad0836, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  sideValue: 5
 --- !u!1 &9020145825420265899
 GameObject:
   m_ObjectHideFlags: 0
@@ -222,7 +198,6 @@ GameObject:
   - component: {fileID: 9020145825420266677}
   - component: {fileID: 9020145825420266823}
   - component: {fileID: 9020145825420267210}
-  - component: {fileID: 9020145825420263663}
   m_Layer: 0
   m_Name: 2
   m_TagString: Untagged
@@ -266,6 +241,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -277,6 +253,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -302,19 +279,6 @@ SphereCollider:
   serializedVersion: 2
   m_Radius: 0.5
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &9020145825420263663
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9020145825420265899}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 533b4ba83ff37e946b2142e2e5ad0836, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  sideValue: 6
 --- !u!1 &9020145825420265968
 GameObject:
   m_ObjectHideFlags: 0
@@ -327,7 +291,6 @@ GameObject:
   - component: {fileID: 9020145825420266744}
   - component: {fileID: 9020145825420266890}
   - component: {fileID: 9020145825420267203}
-  - component: {fileID: 9020145825420264224}
   m_Layer: 0
   m_Name: 3
   m_TagString: Untagged
@@ -371,6 +334,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -382,6 +346,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -407,19 +372,6 @@ SphereCollider:
   serializedVersion: 2
   m_Radius: 0.5
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &9020145825420264224
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9020145825420265968}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 533b4ba83ff37e946b2142e2e5ad0836, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  sideValue: 4
 --- !u!1 &9020145825420265979
 GameObject:
   m_ObjectHideFlags: 0
@@ -432,7 +384,6 @@ GameObject:
   - component: {fileID: 9020145825420266722}
   - component: {fileID: 9020145825420266932}
   - component: {fileID: 9020145825420267214}
-  - component: {fileID: 9020145825420264237}
   m_Layer: 0
   m_Name: 6
   m_TagString: Untagged
@@ -476,6 +427,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -487,6 +439,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -512,19 +465,6 @@ SphereCollider:
   serializedVersion: 2
   m_Radius: 0.5
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &9020145825420264237
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9020145825420265979}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 533b4ba83ff37e946b2142e2e5ad0836, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  sideValue: 2
 --- !u!1 &9020145825420265981
 GameObject:
   m_ObjectHideFlags: 0
@@ -537,7 +477,6 @@ GameObject:
   - component: {fileID: 9020145825420266724}
   - component: {fileID: 9020145825420266934}
   - component: {fileID: 9020145825420267201}
-  - component: {fileID: 9020145825420264236}
   m_Layer: 0
   m_Name: 5
   m_TagString: Untagged
@@ -581,6 +520,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -592,6 +532,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -617,19 +558,6 @@ SphereCollider:
   serializedVersion: 2
   m_Radius: 0.5
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &9020145825420264236
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9020145825420265981}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 533b4ba83ff37e946b2142e2e5ad0836, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  sideValue: 1
 --- !u!1 &9020145825420266311
 GameObject:
   m_ObjectHideFlags: 0
@@ -694,10 +622,11 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: b0a15baa5163ebf46a1315335e6b988e, type: 2}
+  - {fileID: 2100000, guid: 30c8f5f0edc0f174290984b4a082a298, type: 2}
   - {fileID: 2100000, guid: af98a955c80320c44a8d293786558b63, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
@@ -706,6 +635,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -741,12 +671,12 @@ MeshCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9020145825420266311}
-  m_Material: {fileID: 13400000, guid: 0606578761d65bb41a31a5340e081329, type: 2}
+  m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_Enabled: 1
-  serializedVersion: 3
+  serializedVersion: 4
   m_Convex: 1
-  m_CookingOptions: 14
+  m_CookingOptions: 30
   m_Mesh: {fileID: 4300000, guid: ce0fd11431fb49f429e35746a580485f, type: 2}
 --- !u!114 &9020145825420263512
 MonoBehaviour:
@@ -757,21 +687,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 9020145825420266311}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bba8d0619a403a241994d4b6103edd2c, type: 3}
+  m_Script: {fileID: 11500000, guid: 86e618c5e09b05248ab9c7058b87a1a9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  diceValue: 0
-  diceSides:
-  - {fileID: 9020145825420263551}
-  - {fileID: 9020145825420263663}
-  - {fileID: 9020145825420264224}
-  - {fileID: 9020145825420264282}
-  - {fileID: 9020145825420264236}
-  - {fileID: 9020145825420264237}
-  disolveMatWood: {fileID: 2100000, guid: b8ad4542093089c4aa83d1424d7db96e, type: 2}
-  disolveMatBlack: {fileID: 2100000, guid: ab323e254f448c34a8f76d00fdc80929, type: 2}
-  rollButtonPressed: 0
-  initPosition: {x: 0, y: 0, z: 0}
+  isRolling: 0
+  resultValue: 0
+  buttonPressed: 0
 --- !u!95 &9020145825420267258
 Animator:
   serializedVersion: 3
@@ -782,7 +703,7 @@ Animator:
   m_GameObject: {fileID: 9020145825420266311}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: fbb7ad2e850468d4ca8a9634f4950c28, type: 2}
+  m_Controller: {fileID: 0}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
