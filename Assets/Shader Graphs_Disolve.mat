@@ -11,7 +11,7 @@ Material:
   m_Shader: {fileID: -6465566751694194690, guid: ce056b8795b5f384aad1453030ea39e8,
     type: 3}
   m_ShaderKeywords: 
-  m_LightmapFlags: 2
+  m_LightmapFlags: 1
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
@@ -28,6 +28,6 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Floats:
     - Vector1_7DCD0A30: 0.1
-    - Vector1_91B31D38: 0.37
+    - Vector1_91B31D38: 0.254
     m_Colors:
-    - Color_5706AFF: {r: 0, g: 417.63138, b: 766.9961, a: 0.22745098}
+    - Color_5706AFF: {r: 0, g: 1024, b: 766.9961, a: 0.22745098}
