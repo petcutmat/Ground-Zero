@@ -9,13 +9,10 @@ public class DiceSide : MonoBehaviour
     public GameObject dice;
     public GameObject ground;
 
-    private void Update()
-    {
-       if (diceValue != sideNumber && transform.position.y < 0.1 && dice.GetComponent<Rigidbody>().velocity == Vector3.zero)
-       {
+    private void Update(){ //si el dado ya no se mueve y la cara del dado toca suelo
+       if (diceValue != sideNumber && transform.position.y < 0.1 && dice.GetComponent<Rigidbody>().velocity == Vector3.zero){
             diceValue = sideNumber;
             transform.parent.GetComponent<DiceControl>().resultValue = sideNumber;
        }
-        
     }
 }
