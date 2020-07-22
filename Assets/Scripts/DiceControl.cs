@@ -35,6 +35,7 @@ public class DiceControl : MonoBehaviour
         for (int i = 0; i < transform.childCount; i++){ //reiniciar caras del dado
             transform.GetChild(i).GetComponent<DiceSide>().diceValue = 0;
         }
+        transform.rotation = Random.rotation;
         isRolling = false;
         GetComponent<Rigidbody>().useGravity = false;
         transform.position = initPos;
