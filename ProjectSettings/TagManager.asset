@@ -7,6 +7,14 @@ TagManager:
   - Ground
   - altStart
   - alt
+  - Blade
+  - Master
+  - Boss
+  - Zombie
+  - Blood
+  - square
+  - pwUp
+  - altRouteArrow
   layers:
   - Default
   - TransparentFX
@@ -17,7 +25,7 @@ TagManager:
   - 
   - 
   - PostProcessing
-  - 
+  - UnLit
   - 
   - 
   - 
@@ -41,6 +49,12 @@ TagManager:
   - 
   - 
   m_SortingLayers:
+  - name: UI
+    uniqueID: 2505231187
+    locked: 0
+  - name: Unlit
+    uniqueID: 3234325449
+    locked: 0
   - name: Default
     uniqueID: 0
     locked: 0
