@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class SmoothCameraFollow : MonoBehaviour
 {
@@ -11,12 +9,39 @@ public class SmoothCameraFollow : MonoBehaviour
     public Vector3 centerPos;
     public float cameraSpeed = 2.0f;
 
-    void Update()
-    {
+    void Update() {
+
         //establecer centro de mira y personaje objetivo
-        objectToFollow = master.players.transform.GetChild(master.whosTurn-1).gameObject;
+        objectToFollow = master.players.transform.GetChild(master.whosTurn - 1).gameObject;
         float centerRelativePos = objectToFollow.transform.position.x / 2;
-        centerPos = new Vector3(centerRelativePos, centerPos.y, centerPos.z); 
+        centerPos = new Vector3(centerRelativePos, centerPos.y, centerPos.z);
+
+
+        if (master.players.transform.GetChild(master.whosTurn - 1).position.z > 10 || master.players.transform.GetChild(master.whosTurn - 1).position.x < -5){
+            offset.x = 3;
+            offset.y = 1.5f;
+            offset.z = 0;
+            centerRelativePos = objectToFollow.transform.position.z;
+            centerPos = new Vector3(-25, -7f, 30);
+            centerPos = new Vector3(centerPos.x, centerPos.y, centerRelativePos);
+        }
+        if(master.players.transform.GetChild(master.whosTurn - 1).position.z > 18){
+            offset.x = 0;
+            offset.y = 1.5f;
+            offset.z = -3;
+            centerRelativePos = objectToFollow.transform.position.x;
+            centerPos = new Vector3(-10, -7, 40);
+            centerPos = new Vector3(centerRelativePos, centerPos.y, centerPos.z);
+        }
+        if (master.players.transform.GetChild(master.whosTurn - 1).position.x < -15)
+        {
+            offset.x = 3;
+            offset.y = 1.9f;
+            offset.z = -4;
+            centerRelativePos = objectToFollow.transform.position.x;
+            centerPos = new Vector3(-45, 2.5f, 29);
+            centerPos = new Vector3(centerRelativePos, centerPos.y, centerPos.z);
+        }
 
         //rotación de cámara
         Quaternion targetRotation = Quaternion.LookRotation(centerPos - transform.position);
@@ -28,6 +53,6 @@ public class SmoothCameraFollow : MonoBehaviour
         position.y = Mathf.Lerp(transform.position.y, objectToFollow.transform.position.y + offset.y, cameraSpeed * Time.deltaTime);
         position.z = Mathf.Lerp(transform.position.z, objectToFollow.transform.position.z + offset.z, cameraSpeed * Time.deltaTime);
         transform.position = position;
-
     }
+       
 }

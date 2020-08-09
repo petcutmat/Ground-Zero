@@ -1,19 +1,31 @@
 ﻿using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Movement : MonoBehaviour
 {
     public GameObject route;
     public MasterScript master;
-    int routePosition;
+    public int routePosition;
     public int steps;
     public float velocity = 3f;
     public GameObject arrow;
     public int arrowResponse = 0;
-    public GameObject altWp;
+    public GameObject altWp1;
+    public GameObject altWp2;
     public int savedSteps;
-    List<Transform> currentRoute = new List<Transform>();
+    public List<Transform> currentRoute = new List<Transform>();
+    private bool disolveObstacleOver = false;
+    private bool disolvePlayerOver = false;
+    private bool appearPlayerOver = false;
+    public Material defaultMat, disolveMat;
+    public GameObject forceField;
+    public bool canEndTurn = true;
+    public bool canStartMinigame = true;
+    public int litcounter = 0;
+
+    public AudioClip openDoorSFX;
 
     private void Start(){ //Creación de ruta por jugador
         ResetRoute();
@@ -35,33 +47,70 @@ public class Movement : MonoBehaviour
             arrowResponse = -1;
             steps = savedSteps;
 
-            ResetRoute();
-
             StartCoroutine(Move());
             StartCoroutine(RevertArrowResponse());
-            Destroy(GameObject.Find("altRouteArrow"));
+            foreach (GameObject altarrow in GameObject.FindGameObjectsWithTag("altRouteArrow"))
+            {
+                Destroy(altarrow);
+            }
             Destroy(GameObject.Find("routeArrow"));
+           
+            canEndTurn = true;
         }
         if(arrowResponse == 2){
             arrowResponse = -1;
-            
+
             int skipSquares = currentRoute[routePosition].GetComponent<SquareType>().skipSquares;
 
-            int altSquares = altWp.transform.parent.transform.childCount;
+            int altSquares = altWp1.transform.parent.transform.childCount;
 
             for (int i = 1; i <= skipSquares; i++) {
                 currentRoute.Remove(currentRoute[routePosition + 1]);
             }
             for (int i = 1; i <= altSquares; i++)
             {
-                currentRoute.Insert(routePosition + i, altWp.transform.parent.transform.GetChild(i-1));
+                currentRoute.Insert(routePosition + i, altWp1.transform.parent.transform.GetChild(i - 1));
+
             }
 
             steps = savedSteps;
             StartCoroutine(Move());
             StartCoroutine(RevertArrowResponse());
-            Destroy(GameObject.Find("altRouteArrow"));
+            foreach(GameObject altarrow in GameObject.FindGameObjectsWithTag("altRouteArrow")){
+                Destroy(altarrow);
+            }
+            
+            Destroy(GameObject.Find("routeArrow")); 
+            canEndTurn = true;
+        }
+        if (arrowResponse == 3)
+        {
+            arrowResponse = -1;
+
+            int skipSquares = currentRoute[routePosition].GetComponent<SquareType>().skipSquares;
+
+            int altSquares = altWp2.transform.parent.transform.childCount;
+
+            for (int i = 1; i <= skipSquares; i++)
+            {
+                currentRoute.Remove(currentRoute[routePosition + 1]);
+            }
+            for (int i = 1; i <= altSquares; i++)
+            {
+                currentRoute.Insert(routePosition + i, altWp2.transform.parent.transform.GetChild(i - 1));
+
+            }
+
+            steps = savedSteps;
+            StartCoroutine(Move());
+            StartCoroutine(RevertArrowResponse());
+            foreach (GameObject altarrow in GameObject.FindGameObjectsWithTag("altRouteArrow"))
+            {
+                Destroy(altarrow);
+            }
+
             Destroy(GameObject.Find("routeArrow"));
+            canEndTurn = true;
         }
     }
 
@@ -101,12 +150,14 @@ public class Movement : MonoBehaviour
                     rot *= Quaternion.Euler(0, 90, 0);
                     arrowPrefab.transform.rotation = rot;
                     arrowPrefab.name = "routeArrow";
+                    int counter = 1;
 
                     foreach (GameObject alt in GameObject.FindGameObjectsWithTag("altStart"))
                     {
                         if (Vector3.Distance(currentRoute[routePosition + 1].transform.position, alt.transform.position) < 3f)
                         {
-                            altWp = alt;
+                            if (counter == 1) altWp1 = alt;
+                            if (counter == 2) altWp2 = alt;
                             currentPos = (alt.transform.position + currentRoute[routePosition + 1].transform.position) / 2;
                             currentPos.y += 0.2f;
                             GameObject arrowAltPrefab = Instantiate(arrow, currentPos, Quaternion.identity);
@@ -114,29 +165,108 @@ public class Movement : MonoBehaviour
                             Quaternion rotAlt = arrowAltPrefab.transform.rotation;
                             rotAlt *= Quaternion.Euler(0, 90, 0);
                             arrowAltPrefab.transform.rotation = rotAlt;
-                            arrowAltPrefab.name = "altRouteArrow";
+                            arrowAltPrefab.name = "altRouteArrow" + counter;
+                            arrowAltPrefab.tag = "altRouteArrow";
+                            counter++;
                         }
                     }
                     savedSteps = steps-1;
+                    if(savedSteps == 0){
+                        canEndTurn = true;
+                    }else{
+                        canEndTurn = false;
+                    }
                     steps = 1;
                 }
                 if (currentRoute[routePosition + 1].GetComponent<SquareType>().type == 2){ //si es tipo tp
+                    //desaparece
+                    transform.GetComponentInChildren<MeshRenderer>().material = disolveMat;
+                    transform.GetChild(0).GetComponent<Animator>().enabled = true;
+                    transform.GetChild(0).GetComponent<Animator>().Play("P" + master.whosTurn + "Disolve");
+                    StartCoroutine(WaitDisolve("player"));
+                    forceField.GetComponent<AudioSource>().Play();
+                    while (!disolvePlayerOver)
+                    {
+                        yield return null;
+                    }
+                    disolvePlayerOver = false;
+                    canEndTurn = false;
+
+                    //transporta
                     transform.position = currentRoute[currentRoute[routePosition + 1].GetComponent<SquareType>().tpto].position;
                     routePosition = currentRoute[routePosition + 1].GetComponent<SquareType>().tpto;
                     ResetRoute();
+
+                    //aparece
+                    StartCoroutine(WaitAppear());
+                    transform.GetChild(0).GetComponent<Animator>().Play("P" + master.whosTurn + "Appear");
+                    forceField.GetComponent<AudioSource>().Play();
+                    while (!appearPlayerOver)
+                    {
+                        yield return null;
+                    }
+                    appearPlayerOver = false;
+                    transform.GetChild(0).GetComponent<Animator>().enabled = false;
+                    transform.GetComponentInChildren<MeshRenderer>().material = defaultMat;
+                    canStartMinigame = false;
+                    canEndTurn = true;
                     break;
                 }
+                
                 if (currentRoute[routePosition + 1].GetComponent<SquareType>().type == 3) { //si es tipo puerta
-                    if (master.players.transform.GetChild(master.whosTurn - 1).GetComponent<Points>().points >= currentRoute[routePosition + 1].GetComponent<SquareType>().doorCost)
-                    {
-                        master.players.transform.GetChild(master.whosTurn - 1).GetComponent<Points>().points -= currentRoute[routePosition + 1].GetComponent<SquareType>().doorCost;
-                        Destroy(currentRoute[routePosition + 1].GetComponent<SquareType>().doori);
-                    }
-                    else
-                    {
+                    if (master.players.transform.GetChild(master.whosTurn - 1).GetComponent<Points>().points >= 
+                        currentRoute[routePosition + 1].GetComponent<SquareType>().doorCost){
+                        master.players.transform.GetChild(master.whosTurn - 1).GetComponent<Points>().points -= 
+                            currentRoute[routePosition + 1].GetComponent<SquareType>().doorCost;
+                        GameObject doorInst = currentRoute[routePosition + 1].GetComponent<SquareType>().doori;
+
+                        for (int i = 0; i < doorInst.transform.childCount; i++){
+                            doorInst.transform.GetChild(i).GetComponent<Animator>().enabled = true;
+                            doorInst.transform.GetChild(i).GetComponent<Animator>().Play("PilarsDisolve");
+                        }
+                        master.ShowMessage("Obstaculo eliminado!", 3f);
+                        GetComponent<AudioSource>().PlayOneShot(openDoorSFX);
+
+                        StartCoroutine(WaitDisolve("obstacle"));
+                        while (!disolveObstacleOver){
+                            yield return null;
+                        }
+                        disolveObstacleOver = false;
+                        
+                        Destroy(doorInst);
+                        currentRoute[routePosition + 1].GetComponent<SquareType>().type = -1; //eliminar efecto especial a la casilla
+                    }else {
+                        //desaparece
+                        transform.GetComponentInChildren<MeshRenderer>().material = disolveMat;
+                        transform.GetChild(0).GetComponent<Animator>().enabled = true;
+                        transform.GetChild(0).GetComponent<Animator>().Play("P" + master.whosTurn + "Disolve");
+                        StartCoroutine(WaitDisolve("player"));
+                        forceField.GetComponent<AudioSource>().Play();
+                        while (!disolvePlayerOver){
+                            yield return null;
+                        }
+                        disolvePlayerOver = false;
+                        canEndTurn = false;
+
+                        //transporta
                         transform.position = currentRoute[currentRoute[routePosition + 1].GetComponent<SquareType>().tpto].position;
                         routePosition = currentRoute[routePosition + 1].GetComponent<SquareType>().tpto;
                         ResetRoute();
+                        master.ShowMessage("No tienes los puntos necesarios", 3f);
+
+                        //aparece
+                        StartCoroutine(WaitAppear());
+                        transform.GetChild(0).GetComponent<Animator>().Play("P" + master.whosTurn + "Appear");
+                        forceField.GetComponent<AudioSource>().Play();
+                        while (!appearPlayerOver)
+                        {
+                            yield return null;
+                        }
+                        appearPlayerOver = false;
+                        transform.GetChild(0).GetComponent<Animator>().enabled = false;
+                        transform.GetComponentInChildren<MeshRenderer>().material = defaultMat;
+                        canStartMinigame = false;
+                        canEndTurn = true;
                         break;
                     }
                     
@@ -146,6 +276,32 @@ public class Movement : MonoBehaviour
             steps--;
             routePosition++;
         }
+        if (canEndTurn) {
+            if (canStartMinigame)
+            {
+                if(currentRoute.Count != routePosition + 1) master.GetComponent<MasterScript>().StartMinigame();
+            }else{
+                canStartMinigame = true;
+                master.GetComponent<MasterScript>().endTurnButton.GetComponent<Button>().interactable = true;
+            }
+            canEndTurn = false;
+        }
+        
+    }
+
+    IEnumerator WaitDisolve(string type)
+    {
+        yield return new WaitForSeconds(1.9f);
+        if(type == "player"){
+            disolvePlayerOver = true;
+        } else {
+            disolveObstacleOver = true;
+        }
+    }
+    IEnumerator WaitAppear()
+    {
+        yield return new WaitForSeconds(1.9f);
+        appearPlayerOver = true;
     }
 
     bool MoveToNext(Vector3 goal)
@@ -156,5 +312,45 @@ public class Movement : MonoBehaviour
         }
         return goal != (transform.position = Vector3.MoveTowards(transform.position, goal, velocity * Time.deltaTime));
          
+    }
+
+    public IEnumerator TpBack(int stepsBack, int playerNumber)
+    {
+        
+        //desaparece
+        transform.GetComponentInChildren<MeshRenderer>().material = disolveMat;
+        transform.GetChild(0).GetComponent<Animator>().enabled = true;
+        transform.GetChild(0).GetComponent<Animator>().Play("P" + playerNumber + "Disolve");
+        StartCoroutine(WaitDisolve("player"));
+        forceField.GetComponent<AudioSource>().Play();
+        while (!disolvePlayerOver)
+        {
+            yield return null;
+        }
+        disolvePlayerOver = false;
+        canEndTurn = false;
+
+        //transporta
+        if (routePosition - stepsBack > 0)
+        {
+            transform.position = currentRoute[routePosition-stepsBack].position;
+            routePosition -= stepsBack;
+        }else {
+            transform.position = currentRoute[0].position;
+            routePosition = 0;
+        }
+
+        //aparece
+        StartCoroutine(WaitAppear());
+        transform.GetChild(0).GetComponent<Animator>().Play("P" + playerNumber + "Appear");
+        forceField.GetComponent<AudioSource>().Play();
+        while (!appearPlayerOver)
+        {
+            yield return null;
+        }
+        appearPlayerOver = false;
+        transform.GetChild(0).GetComponent<Animator>().enabled = false;
+        transform.GetComponentInChildren<MeshRenderer>().material = defaultMat;
+        canStartMinigame = false;
     }
 }

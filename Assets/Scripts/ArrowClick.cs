@@ -12,8 +12,10 @@ public class ArrowClick : MonoBehaviour
     }
     void OnMouseDown()
     {
-        if(gameObject.name == "altRouteArrow"){
+        if(gameObject.name == "altRouteArrow1"){
             master.players.transform.GetChild(master.whosTurn - 1).GetComponent<Movement>().arrowResponse = 2;
+        } else if (gameObject.name == "altRouteArrow2"){
+                master.players.transform.GetChild(master.whosTurn - 1).GetComponent<Movement>().arrowResponse = 3;
         }else {
             master.players.transform.GetChild(master.whosTurn - 1).GetComponent<Movement>().arrowResponse = 1;
         }

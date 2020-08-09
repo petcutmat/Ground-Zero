@@ -1,13 +1,22 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class Points : MonoBehaviour
 {
     public int points;
+    public int multiplier =1;
 
-    private void Start()
+    private void Start(){
+        points = 2500;
+    }
+
+    public int addPoints(int points)
     {
-        points = 500;
+        points = multiplier * points;
+        SumPoints(points);
+        return points;
+    }
+    public void SumPoints(int p)
+    {
+        points += p;
     }
 }
