@@ -33,7 +33,7 @@ public class SmoothCameraFollow : MonoBehaviour
             centerPos = new Vector3(-10, -7, 40);
             centerPos = new Vector3(centerRelativePos, centerPos.y, centerPos.z);
         }
-        if (master.players.transform.GetChild(master.whosTurn - 1).position.x < -15)
+        if (master.players.transform.GetChild(master.whosTurn - 1).position.x < -20)
         {
             offset.x = 3;
             offset.y = 1.9f;
@@ -42,6 +42,16 @@ public class SmoothCameraFollow : MonoBehaviour
             centerPos = new Vector3(-45, 2.5f, 29);
             centerPos = new Vector3(centerRelativePos, centerPos.y, centerPos.z);
         }
+        if (master.players.transform.GetChild(master.whosTurn - 1).position.z < 10 && master.players.transform.GetChild(master.whosTurn - 1).position.x > -2)
+        {
+            offset.x = 0;
+            offset.y = 1.9f;
+            offset.z = -3;
+            centerRelativePos = objectToFollow.transform.position.z;
+            centerPos = new Vector3(1.5f, -7f, 20);
+            centerPos = new Vector3(centerRelativePos, centerPos.y, centerPos.z);
+        }
+
 
         //rotación de cámara
         Quaternion targetRotation = Quaternion.LookRotation(centerPos - transform.position);

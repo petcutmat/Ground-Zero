@@ -8,7 +8,8 @@ public class CharacterController : MonoBehaviour
     public Vector3 startpos;
     public int health; //cambiar a 3 en escena
     private Color c;
-    public float cd;
+    public float cdHit;
+    public float cdSlow;
     public GameObject master;
     public int charges = 0;
     public GameObject smokeBomb;
@@ -57,42 +58,42 @@ public class CharacterController : MonoBehaviour
     }
 
     public void Hit() {
-        if(cd == 0){
+        if(cdHit == 0){
             c.a = 0.5f;
             GetComponent<Image>().color = c;
             health -= 1;
-            cd = 0.5f;
+            cdHit = 0.5f;
             Color hitColor = new Color(0.63f, 0.17f, 0.17f);
             transform.parent.GetComponent<Image>().color = hitColor;
             GetComponent<AudioSource>().Play();
             master.GetComponent<MasterScript>().players.transform.GetChild(
                master.GetComponent<MasterScript>().whosTurn - 1).GetComponent<Points>().points -= 40;
             master.GetComponent<MiniGame>().counter -= 40;
-            StartCoroutine(WaitCD(cd));
+            StartCoroutine(WaitCD(cdHit));
         }
     }
 
     IEnumerator WaitCD(float seconds){
         yield return new WaitForSeconds(seconds);
-        cd = 0;
+        cdHit = 0;
         c.a = 1f;
         transform.parent.GetComponent<Image>().color = Color.black;
         GetComponent<Image>().color = c;
     }
 
     public void Slow(){
-        if (cd == 0){
+        if (cdSlow == 0){
             Color c2 = new Color(1, 0.6f, 0.6f);
             GetComponent<Image>().color = c2;
-            cd = 2f;
-            StartCoroutine(SlowCD(cd));
+            cdSlow = 1.5f;
+            StartCoroutine(SlowCD(cdSlow));
             speed /= 2f;
         }
     }
 
     IEnumerator SlowCD(float seconds){
         yield return new WaitForSeconds(seconds);
-        cd = 0;
+        cdSlow = 0;
         speed *= 2;
         GetComponent<Image>().color = c;
     }

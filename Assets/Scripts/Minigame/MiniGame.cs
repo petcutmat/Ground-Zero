@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using UnityEngine;
+using UnityEngine.PlayerLoop;
 using UnityEngine.UI;
 
 public class MiniGame : MonoBehaviour
@@ -16,6 +17,7 @@ public class MiniGame : MonoBehaviour
     public GameObject camera;
     public GameObject panel;
     public GameObject counterDisplay;
+    public GameObject bounds;
 
     public int counter;
     public bool allEnemiesSpawned;
@@ -26,15 +28,30 @@ public class MiniGame : MonoBehaviour
     public float obstaclSpawnDelay = 5;
     public float swordSpawnDelay = 5;
 
-    public int minigameType;
+    bool diffUp = false;
+    bool diffUpEE = false;
 
-    public void StartMinigame(){
+    public int minigameType;
+    public GameObject bombCounter;
+
+
+    public void StartMinigame() {
         if (gameObject.GetComponent<MasterScript>().players.transform.GetChild(
-            gameObject.GetComponent<MasterScript>().whosTurn - 1).GetComponent<PwUpEffect>().IKPwUpCounter > 0){
+            gameObject.GetComponent<MasterScript>().whosTurn - 1).GetComponent<PwUpEffect>().IKPwUpCounter > 0) {
             blade.GetComponent<Blade>().cdrAlt = 1f;
-        }else{
+        } else {
             blade.GetComponent<Blade>().cdrAlt = 0.15f;
         }
+
+        if (gameObject.GetComponent<MasterScript>().players.transform.GetChild(gameObject.GetComponent<MasterScript>().whosTurn - 1).GetComponent<Movement>().routePosition > 20) {
+            swordSpawnDelay /= 1.5f;
+            diffUp = true;
+        }
+        if (gameObject.GetComponent<MasterScript>().eeCollection.activeSelf){
+            diffUpEE = true;
+            swordSpawnDelay /= 2f;
+        }
+
         enemyNumber = (int) gameObject.GetComponent<MasterScript>().players.transform.GetChild(gameObject.GetComponent<MasterScript>().whosTurn - 1).GetComponent<Movement>().routePosition/3 +5;
         blade.SetActive(false);
         blade.GetComponent<CircleCollider2D>().radius = 0.15f;
@@ -42,20 +59,17 @@ public class MiniGame : MonoBehaviour
         endMinigame = false;
         character.GetComponent<CharacterController>().SpawnCharacter();
 
-        var binario = new int[2];
+        var binary = new int[2];
+        binary[0] = 0;
+        binary[1] = 1;
+        minigameType = Random.Range(0, binary.Length);
 
-        binario[0] = 0;
-        binario[1] = 1;
-
-        minigameType = Random.Range(0, binario.Length);
-        if (minigameType == 1)
-        {
+        if (minigameType == 1){
             StartCoroutine(SpawnEnemy(enemyNumber, enemySpawnDelay));
             StartCoroutine(SpawnObstacle(obstaclSpawnDelay));
             StartCoroutine(SpawnSword(swordSpawnDelay));
-        }
-        else 
-        {
+        }else {
+            bounds.SetActive(true);
             StartCoroutine(SpawnBurst());
         }
         
@@ -67,7 +81,11 @@ public class MiniGame : MonoBehaviour
         blade.SetActive(true);
         blade.GetComponent<CircleCollider2D>().radius = 0.3f;
         character.GetComponent<CharacterController>().speed = 0;
-        for (int i = 0; i < 20; i++)
+        int counter = 0;
+       
+        int enemies = 20;
+        if (diffUp) enemies = 30;
+        for (int i = 0; i < enemies; i++)
         {
             yield return new WaitForSeconds(0.3f);
 
@@ -83,11 +101,28 @@ public class MiniGame : MonoBehaviour
 
             zombiei.GetComponent<RectTransform>().localScale = new Vector3(0.55f, 0.55f, 1f);
             zombiei.GetComponent<EnemyController>().speed = 0.6f;
+            if (diffUp)
+            {
+                zombiei.GetComponentInChildren<Image>().color = new Color(0.7f, 0.5f, 0.5f);
+                if (counter > 5) zombiei.GetComponent<EnemyController>().speed = 0.9f;
+                if (counter > 10 && (zombiei.GetComponent<RectTransform>().localPosition == new Vector3(600, 0, -1) || zombiei.GetComponent<RectTransform>().localPosition == new Vector3(-600, 0, -1))) zombiei.GetComponent<EnemyController>().speed = 1.5f;
+                if (counter > 20 && (zombiei.GetComponent<RectTransform>().localPosition == new Vector3(600, 0, -1) || zombiei.GetComponent<RectTransform>().localPosition == new Vector3(-600, 0, -1))) zombiei.GetComponent<EnemyController>().speed = 1.9f;
+            }
+            if (diffUpEE)
+            {
+                zombiei.GetComponentInChildren<Image>().color = new Color(1f, 0.3f, 0.3f);
+                if (counter > 5) zombiei.GetComponent<EnemyController>().speed = 1f;
+                if (counter > 10 && (zombiei.GetComponent<RectTransform>().localPosition == new Vector3(600, 0, -1) || zombiei.GetComponent<RectTransform>().localPosition == new Vector3(-600, 0, -1))) zombiei.GetComponent<EnemyController>().speed = 1.9f;
+                if (counter > 20 && (zombiei.GetComponent<RectTransform>().localPosition == new Vector3(600, 0, -1) || zombiei.GetComponent<RectTransform>().localPosition == new Vector3(-600, 0, -1))) zombiei.GetComponent<EnemyController>().speed = 2.2f;
+            }
+
             zombiei.tag = "Zombie";
             zombiei.name = "zombie" + i;
             zombiei.transform.SetSiblingIndex(0); //insertarlo encima para capas
+            counter++;
         }
         allEnemiesSpawned = true;
+        bounds.SetActive(false);
         character.GetComponent<CharacterController>().speed = 1.6f;
     }
 
@@ -104,8 +139,11 @@ public class MiniGame : MonoBehaviour
             z.GetComponent<EnemyController>().speed += 0.05f *Time.deltaTime;
         }
 
+        bombCounter.GetComponentInChildren<Text>().text = character.GetComponent<CharacterController>().charges.ToString();
+
     }
     IEnumerator End(){
+        bounds.SetActive(false);
         if (character.GetComponent<CharacterController>().health > 0 && minigameType == 1) {
             Time.timeScale = 0.3f;
             camera.GetComponent<AudioSource>().pitch = 0.3f;
@@ -126,6 +164,7 @@ public class MiniGame : MonoBehaviour
         }
         else if (character.GetComponent<CharacterController>().health > 0 && minigameType == 0)
         {
+            yield return new WaitForSeconds(0.3f);
             GameObject[] blood = GameObject.FindGameObjectsWithTag("Blood");
             for (int i = 0; i < blood.Length; i++)
             {
@@ -150,6 +189,7 @@ public class MiniGame : MonoBehaviour
 
 
     IEnumerator SpawnEnemy(int enemyNumber, float timeBetweenSpawns) {
+
         for (int i = 0; i < enemyNumber; i++){
             yield return new WaitForSeconds(timeBetweenSpawns);
             
@@ -172,6 +212,18 @@ public class MiniGame : MonoBehaviour
                 zombiei.tag = "Zombie";
                 zombiei.name = "zombie" + i;
             }
+
+            if (diffUp)
+            {
+                zombiei.GetComponentInChildren<Image>().color = new Color(0.7f, 0.5f, 0.5f);
+                zombiei.GetComponent<EnemyController>().speed = Random.Range(1.1f, 1.2f);
+            }
+            if (diffUpEE)
+            {
+                zombiei.GetComponentInChildren<Image>().color = new Color(1f, 0.3f, 0.3f);
+                zombiei.GetComponent<EnemyController>().speed = Random.Range(1.3f, 1.6f);
+            }
+
             zombiei.transform.SetSiblingIndex(0); //insertarlo encima para capas
         }
         allEnemiesSpawned = true;

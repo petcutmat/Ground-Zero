@@ -10,6 +10,7 @@ public class SquareType : MonoBehaviour
     public GameObject door;
     public GameObject doori;
     public bool random;
+    public int realSquare;
 
     private void Start() {
         if (random) tpto = GetRandomSquare();
@@ -22,17 +23,15 @@ public class SquareType : MonoBehaviour
             }
         }
     }
-    int GetRandomSquare()
+    public int GetRandomSquare()
     {
-        int[] squares = new int[6];
-        squares[0] = 15;
-        squares[1] = 17;
-        squares[2] = 20;
-        squares[3] = 25;
-        squares[4] = 30;
-        squares[5] = 35;
+        int[] squares = new int[5];
+        squares[0] = 32;
+        squares[1] = 32;
+        squares[2] = 32;
+        squares[3] = 32;
+        squares[4] = 40;
 
         return squares[Random.Range(0, squares.Length)];
-        ;
     }
 }

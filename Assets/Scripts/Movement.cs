@@ -20,10 +20,13 @@ public class Movement : MonoBehaviour
     private bool disolvePlayerOver = false;
     private bool appearPlayerOver = false;
     public Material defaultMat, disolveMat;
+    public Material redMatDisolve, yellowMatDisolve;
+    public Material redMat, yellowMat;
     public GameObject forceField;
     public bool canEndTurn = true;
     public bool canStartMinigame = true;
     public int litcounter = 0;
+    public int stepsLeft = 0;
 
     public AudioClip openDoorSFX;
 
@@ -43,6 +46,7 @@ public class Movement : MonoBehaviour
             steps = -1;
             master.GameOver();
         }
+        if (GetComponent<Health>().healthPoints == 0) { steps = 0; }
         if (arrowResponse == 1) {
             arrowResponse = -1;
             steps = savedSteps;
@@ -56,6 +60,10 @@ public class Movement : MonoBehaviour
             Destroy(GameObject.Find("routeArrow"));
            
             canEndTurn = true;
+            if (master.isArrowPostMingame){
+                master.endTurnButton.GetComponent<Button>().interactable = true;
+                master.isArrowPostMingame = false;
+            }
         }
         if(arrowResponse == 2){
             arrowResponse = -1;
@@ -82,6 +90,12 @@ public class Movement : MonoBehaviour
             
             Destroy(GameObject.Find("routeArrow")); 
             canEndTurn = true;
+            if (master.isArrowPostMingame)
+            {
+                master.endTurnButton.GetComponent<Button>().interactable = true;
+                master.isArrowPostMingame = false;
+            }
+
         }
         if (arrowResponse == 3)
         {
@@ -111,6 +125,11 @@ public class Movement : MonoBehaviour
 
             Destroy(GameObject.Find("routeArrow"));
             canEndTurn = true;
+            if (master.isArrowPostMingame)
+            {
+                master.endTurnButton.GetComponent<Button>().interactable = true;
+                master.isArrowPostMingame = false;
+            }
         }
     }
 
@@ -127,11 +146,14 @@ public class Movement : MonoBehaviour
     }
 
     IEnumerator Move(){
-        while(steps > 0){
+        stepsLeft = steps;
+        
+        while(steps > 0 && GetComponent<Health>().healthPoints > 0){
             if (routePosition + 1 == currentRoute.Count){
                 master.GameOver();
                 break;
             }
+            RotateHat();
             Vector3 nextPos = currentRoute[routePosition + 1].position;
             while (MoveToNext(nextPos)){
                 yield return null;
@@ -150,6 +172,7 @@ public class Movement : MonoBehaviour
                     rot *= Quaternion.Euler(0, 90, 0);
                     arrowPrefab.transform.rotation = rot;
                     arrowPrefab.name = "routeArrow";
+                    arrowPrefab.tag = "routeArrow";
                     int counter = 1;
 
                     foreach (GameObject alt in GameObject.FindGameObjectsWithTag("altStart"))
@@ -176,40 +199,61 @@ public class Movement : MonoBehaviour
                     }else{
                         canEndTurn = false;
                     }
-                    steps = 1;
+                    steps = 0;
                 }
                 if (currentRoute[routePosition + 1].GetComponent<SquareType>().type == 2){ //si es tipo tp
+                    int minusSquares = 0;
+                    if (currentRoute[routePosition + 1].GetComponent<SquareType>().random)
+                    {
+                        currentRoute[routePosition + 1].GetComponent<SquareType>().tpto = currentRoute[routePosition + 1].GetComponent<SquareType>().GetRandomSquare();
+                        minusSquares = 4;
+                    }
                     //desaparece
                     transform.GetComponentInChildren<MeshRenderer>().material = disolveMat;
                     transform.GetChild(0).GetComponent<Animator>().enabled = true;
                     transform.GetChild(0).GetComponent<Animator>().Play("P" + master.whosTurn + "Disolve");
+                    transform.GetChild(1).GetChild(0).GetChild(0).GetComponent<MeshRenderer>().material = redMatDisolve;
+                    transform.GetChild(1).GetChild(0).GetChild(1).GetComponent<MeshRenderer>().material = yellowMatDisolve;
+                    transform.GetChild(1).GetChild(0).GetChild(0).GetComponent<Animator>().enabled = true;
+                    transform.GetChild(1).GetChild(0).GetChild(1).GetComponent<Animator>().enabled = true;
+                    transform.GetChild(1).GetChild(0).GetChild(0).GetComponent<Animator>().Play("P1Disolve");
+                    transform.GetChild(1).GetChild(0).GetChild(1).GetComponent<Animator>().Play("P3Disolve");
                     StartCoroutine(WaitDisolve("player"));
-                    forceField.GetComponent<AudioSource>().Play();
+                    if (forceField) forceField.GetComponent<AudioSource>().Play();
                     while (!disolvePlayerOver)
                     {
                         yield return null;
                     }
                     disolvePlayerOver = false;
                     canEndTurn = false;
+                    StartCoroutine(master.GetComponent<MasterScript>().EndFadeAnim(master.GetComponent<MasterScript>().numberPanel));
 
                     //transporta
                     transform.position = currentRoute[currentRoute[routePosition + 1].GetComponent<SquareType>().tpto].position;
-                    routePosition = currentRoute[routePosition + 1].GetComponent<SquareType>().tpto;
+                    routePosition = currentRoute[routePosition + 1].GetComponent<SquareType>().tpto - minusSquares;
+                   
                     ResetRoute();
 
                     //aparece
                     StartCoroutine(WaitAppear());
                     transform.GetChild(0).GetComponent<Animator>().Play("P" + master.whosTurn + "Appear");
-                    forceField.GetComponent<AudioSource>().Play();
+                    transform.GetChild(1).GetChild(0).GetChild(0).GetComponent<Animator>().Play("P1Appear");
+                    transform.GetChild(1).GetChild(0).GetChild(1).GetComponent<Animator>().Play("P3Appear");
+                    if (forceField)  forceField.GetComponent<AudioSource>().Play();
                     while (!appearPlayerOver)
                     {
                         yield return null;
                     }
                     appearPlayerOver = false;
                     transform.GetChild(0).GetComponent<Animator>().enabled = false;
+                    transform.GetChild(1).GetChild(0).GetChild(0).GetComponent<Animator>().enabled = false;
+                    transform.GetChild(1).GetChild(0).GetChild(1).GetComponent<Animator>().enabled = false;
                     transform.GetComponentInChildren<MeshRenderer>().material = defaultMat;
+                    transform.GetChild(1).GetChild(0).GetChild(0).GetComponent<MeshRenderer>().material = redMat;
+                    transform.GetChild(1).GetChild(0).GetChild(1).GetComponent<MeshRenderer>().material = yellowMat;
                     canStartMinigame = false;
                     canEndTurn = true;
+                    steps = 0;
                     break;
                 }
                 
@@ -224,7 +268,7 @@ public class Movement : MonoBehaviour
                             doorInst.transform.GetChild(i).GetComponent<Animator>().enabled = true;
                             doorInst.transform.GetChild(i).GetComponent<Animator>().Play("PilarsDisolve");
                         }
-                        master.ShowMessage("Obstaculo eliminado!", 3f);
+                        master.ShowMessage("Obstaculo eliminado!", 2f);
                         GetComponent<AudioSource>().PlayOneShot(openDoorSFX);
 
                         StartCoroutine(WaitDisolve("obstacle"));
@@ -240,40 +284,60 @@ public class Movement : MonoBehaviour
                         transform.GetComponentInChildren<MeshRenderer>().material = disolveMat;
                         transform.GetChild(0).GetComponent<Animator>().enabled = true;
                         transform.GetChild(0).GetComponent<Animator>().Play("P" + master.whosTurn + "Disolve");
+                        transform.GetChild(1).GetChild(0).GetChild(0).GetComponent<MeshRenderer>().material = redMatDisolve;
+                        transform.GetChild(1).GetChild(0).GetChild(1).GetComponent<MeshRenderer>().material = yellowMatDisolve;
+                        transform.GetChild(1).GetChild(0).GetChild(0).GetComponent<Animator>().enabled = true;
+                        transform.GetChild(1).GetChild(0).GetChild(1).GetComponent<Animator>().enabled = true;
+                        transform.GetChild(1).GetChild(0).GetChild(0).GetComponent<Animator>().Play("P1Disolve");
+                        transform.GetChild(1).GetChild(0).GetChild(1).GetComponent<Animator>().Play("P3Disolve");
                         StartCoroutine(WaitDisolve("player"));
-                        forceField.GetComponent<AudioSource>().Play();
+                        if (forceField)  forceField.GetComponent<AudioSource>().Play();
+                        master.ShowMessage("No tienes los puntos necesarios", 3f);
                         while (!disolvePlayerOver){
                             yield return null;
                         }
                         disolvePlayerOver = false;
                         canEndTurn = false;
+                        StartCoroutine(master.GetComponent<MasterScript>().EndFadeAnim(master.GetComponent<MasterScript>().numberPanel));
 
                         //transporta
                         transform.position = currentRoute[currentRoute[routePosition + 1].GetComponent<SquareType>().tpto].position;
                         routePosition = currentRoute[routePosition + 1].GetComponent<SquareType>().tpto;
                         ResetRoute();
-                        master.ShowMessage("No tienes los puntos necesarios", 3f);
+                       
 
                         //aparece
                         StartCoroutine(WaitAppear());
                         transform.GetChild(0).GetComponent<Animator>().Play("P" + master.whosTurn + "Appear");
-                        forceField.GetComponent<AudioSource>().Play();
+                        transform.GetChild(1).GetChild(0).GetChild(0).GetComponent<Animator>().Play("P1Appear");
+                        transform.GetChild(1).GetChild(0).GetChild(1).GetComponent<Animator>().Play("P3Appear");
+                        if (forceField)  forceField.GetComponent<AudioSource>().Play();
                         while (!appearPlayerOver)
                         {
                             yield return null;
                         }
                         appearPlayerOver = false;
                         transform.GetChild(0).GetComponent<Animator>().enabled = false;
+                        transform.GetChild(1).GetChild(0).GetChild(0).GetComponent<Animator>().enabled = false;
+                        transform.GetChild(1).GetChild(0).GetChild(1).GetComponent<Animator>().enabled = false;
                         transform.GetComponentInChildren<MeshRenderer>().material = defaultMat;
-                        canStartMinigame = false;
+                        transform.GetChild(1).GetChild(0).GetChild(0).GetComponent<MeshRenderer>().material = redMat;
+                        transform.GetChild(1).GetChild(0).GetChild(1).GetComponent<MeshRenderer>().material = yellowMat;
                         canEndTurn = true;
+                        steps = 0;
                         break;
                     }
                     
                 }
+                if (currentRoute[routePosition + 1].GetComponent<SquareType>().type == 4){ //si es correción de ruta
+                    routePosition = currentRoute[routePosition + 1].GetComponent<SquareType>().realSquare-1;
+                    ResetRoute();
+                }
             }
             yield return new WaitForSeconds(0.1f);
+            
             steps--;
+            stepsLeft--;
             routePosition++;
         }
         if (canEndTurn) {
@@ -287,6 +351,44 @@ public class Movement : MonoBehaviour
             canEndTurn = false;
         }
         
+    }
+
+    void RotateHat()
+    {
+        Quaternion southRot = new Quaternion(0, 0, 0, 0);
+        Vector3 southPos = new Vector3(0, 0, 0);
+        Quaternion northRot = new Quaternion(0, 1, 0, 0);
+        Vector3 northPos = new Vector3(0, 0f, 0);
+        Quaternion eastRot = new Quaternion(0, -0.69f, 0, 0.71f);
+        Vector3 eastPos = new Vector3(0, 0f, 0);
+        Quaternion westRot = new Quaternion(0, -0.67f, 0, -0.73f);
+        Vector3 westPos = new Vector3(0, 0f, 0);
+
+        if (currentRoute[routePosition + 1] != null)
+        {
+            if (currentRoute[routePosition].transform.position.x > currentRoute[routePosition + 1].transform.position.x || currentRoute[routePosition].transform.position.z > currentRoute[routePosition + 1].transform.position.z)
+            { //im facing west or south
+                if (currentRoute[routePosition].transform.position.x - currentRoute[routePosition + 1].transform.position.x > currentRoute[routePosition].transform.position.z - currentRoute[routePosition + 1].transform.position.z)
+                {
+                    transform.GetChild(1).transform.rotation = westRot;
+                }
+                else
+                {
+                    transform.GetChild(1).transform.rotation = southRot;
+                }
+            }
+            else if (currentRoute[routePosition].transform.position.x < currentRoute[routePosition + 1].transform.position.x || currentRoute[routePosition].transform.position.z < currentRoute[routePosition + 1].transform.position.z)
+            { //im facing east or north
+                if (currentRoute[routePosition + 1].transform.position.x - currentRoute[routePosition].transform.position.x > currentRoute[routePosition + 1].transform.position.z - currentRoute[routePosition].transform.position.z)
+                {
+                    transform.GetChild(1).transform.rotation = eastRot;
+                }
+                else
+                {
+                    transform.GetChild(1).transform.rotation = northRot;
+                }
+            }
+        }
     }
 
     IEnumerator WaitDisolve(string type)
@@ -316,13 +418,32 @@ public class Movement : MonoBehaviour
 
     public IEnumerator TpBack(int stepsBack, int playerNumber)
     {
-        
+        bool wasInteractableRoll = master.rollButton.GetComponent<Button>().interactable;
+        bool wasInteractableEnd = master.endTurnButton.GetComponent<Button>().interactable;
         //desaparece
+        if (GameObject.FindGameObjectWithTag("routeArrow"))
+        {
+            foreach (GameObject go in GameObject.FindGameObjectsWithTag("altRouteArrow"))
+            {
+                Destroy(go);
+            }
+            Destroy(GameObject.FindGameObjectWithTag("routeArrow"));
+            wasInteractableEnd = true;
+        }
+        master.endTurnButton.GetComponent<Button>().interactable = false;
+        master.rollButton.GetComponent<Button>().interactable = false;
         transform.GetComponentInChildren<MeshRenderer>().material = disolveMat;
         transform.GetChild(0).GetComponent<Animator>().enabled = true;
-        transform.GetChild(0).GetComponent<Animator>().Play("P" + playerNumber + "Disolve");
+        transform.GetChild(0).GetComponent<Animator>().Play("P" + master.whosTurn + "Disolve");
+        transform.GetChild(1).GetChild(0).GetChild(0).GetComponent<MeshRenderer>().material = redMatDisolve;
+        transform.GetChild(1).GetChild(0).GetChild(1).GetComponent<MeshRenderer>().material = yellowMatDisolve;
+        transform.GetChild(1).GetChild(0).GetChild(0).GetComponent<Animator>().enabled = true;
+        transform.GetChild(1).GetChild(0).GetChild(1).GetComponent<Animator>().enabled = true;
+        transform.GetChild(1).GetChild(0).GetChild(0).GetComponent<Animator>().Play("P1Disolve");
+        transform.GetChild(1).GetChild(0).GetChild(1).GetComponent<Animator>().Play("P3Disolve");
         StartCoroutine(WaitDisolve("player"));
-        forceField.GetComponent<AudioSource>().Play();
+
+        if (forceField) forceField.GetComponent<AudioSource>().Play();
         while (!disolvePlayerOver)
         {
             yield return null;
@@ -333,24 +454,38 @@ public class Movement : MonoBehaviour
         //transporta
         if (routePosition - stepsBack > 0)
         {
-            transform.position = currentRoute[routePosition-stepsBack].position;
+            transform.position = currentRoute[routePosition - stepsBack].position;
             routePosition -= stepsBack;
-        }else {
+        }
+        else
+        {
             transform.position = currentRoute[0].position;
             routePosition = 0;
         }
+        ResetRoute();
 
         //aparece
         StartCoroutine(WaitAppear());
         transform.GetChild(0).GetComponent<Animator>().Play("P" + playerNumber + "Appear");
-        forceField.GetComponent<AudioSource>().Play();
+        transform.GetChild(1).GetChild(0).GetChild(0).GetComponent<Animator>().Play("P1Appear");
+        transform.GetChild(1).GetChild(0).GetChild(1).GetComponent<Animator>().Play("P3Appear");
+        if (forceField) forceField.GetComponent<AudioSource>().Play();
         while (!appearPlayerOver)
         {
             yield return null;
         }
         appearPlayerOver = false;
         transform.GetChild(0).GetComponent<Animator>().enabled = false;
+        transform.GetChild(1).GetChild(0).GetChild(0).GetComponent<Animator>().enabled = false;
+        transform.GetChild(1).GetChild(0).GetChild(1).GetComponent<Animator>().enabled = false;
         transform.GetComponentInChildren<MeshRenderer>().material = defaultMat;
+        transform.GetChild(1).GetChild(0).GetChild(0).GetComponent<MeshRenderer>().material = redMat;
+        transform.GetChild(1).GetChild(0).GetChild(1).GetComponent<MeshRenderer>().material = yellowMat;
         canStartMinigame = false;
+        steps = 0;
+        master.endTurnButton.GetComponent<Button>().interactable = wasInteractableEnd;
+        master.rollButton.GetComponent<Button>().interactable = wasInteractableRoll;
+        canEndTurn = true;
+        
     }
 }

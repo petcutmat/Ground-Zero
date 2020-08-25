@@ -18,7 +18,7 @@ public class Coins : MonoBehaviour
                 GameObject vfx = Instantiate(SpawnVFX, transform.position, Quaternion.identity);
                 vfx.GetComponent<AudioSource>().enabled = true;
                 vfx.GetComponent<AudioSource>().Play();
-                player.GetComponent<Points>().addPoints(100);
+                player.GetComponent<Points>().addPoints(150);
                 master.StartCoroutine(master.CleanSpawnVFX(vfx,1));
                 master.icoins.Remove(gameObject);
                 Destroy(gameObject);

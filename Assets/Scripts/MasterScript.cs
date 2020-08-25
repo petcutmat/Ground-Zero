@@ -11,10 +11,11 @@ public class MasterScript : MonoBehaviour
     public GameObject numberDisplay;
     public bool hasRolled;
     public int whosTurn;
-    public int maxPlayers = 0;
+    public int maxPlayers = 1;
     public GameObject players;
     public GameObject rollButton;
     public GameObject endTurnButton;
+    public GameObject shopButton;
     public GameObject numberPanel;
     public GameObject messagePanel;
     public float timer = 60f;
@@ -40,19 +41,133 @@ public class MasterScript : MonoBehaviour
     public GameObject ikPwUp;
 
     public int ee = 0;
-    public AudioClip drumSFX;
+    public GameObject square_29;
+    public GameObject tpWp5;
+    public int ee2 = 0;
+    public GameObject sun;
+    public GameObject eeCollection;
+
+    public GameObject coverCanvas;
+    public bool isArrowPostMingame = false;
+
+    void OnEnable()
+    {
+        maxPlayers = PlayerPrefs.GetInt("maxPlayers");
+        if (maxPlayers == 0) maxPlayers = 1;
+    }
 
     private void Start(){
         endTurnButton.GetComponent<Button>().interactable = false;
         SpawnCoins();
         SpawnPwUps();
         hasRolled = false;
-        for (int i = 0; i < players.transform.childCount; i++){
-            if (players.transform.GetChild(i).gameObject.activeSelf) maxPlayers++; 
+        for (int i = 0; i < maxPlayers; i++){
+            players.transform.GetChild(i).gameObject.SetActive(true); 
         }
         whosTurn = 1;
         Screen.SetResolution(1550, 700, true);
     }
+
+    private void Update()
+    {
+        if (boardCamera.activeSelf && ((players.transform.GetChild(whosTurn - 1).GetComponent<Movement>().steps == 0 && timer >= -10f) || GameObject.FindGameObjectWithTag("routeArrow"))) timer -= Time.deltaTime;
+        timerDisplay.GetComponentInChildren<Text>().text = ((int)timer).ToString();
+        if (timer <= 5 && GameObject.FindGameObjectWithTag("routeArrow")) { //eliminar flechas y seleccionar path normal.
+            foreach (GameObject go in GameObject.FindGameObjectsWithTag("altRouteArrow")){
+                Destroy(go);
+            }
+            Destroy(GameObject.FindGameObjectWithTag("routeArrow"));
+            players.transform.GetChild(whosTurn - 1).GetComponent<Movement>().arrowResponse = 1;
+            players.transform.GetChild(whosTurn - 1).GetComponent<Movement>().savedSteps = 1;
+
+        }
+
+        if (timer <= 0f && timer >= -10f) EndTurn();
+
+        if (dice1.GetComponent<DiceControl>().resultValue != 0 &&
+            dice2.GetComponent<DiceControl>().resultValue != 0 && !hasRolled)
+        { //si ambos dados poseen valor, sumarlos
+            MovePlayerByDice();
+        }
+        pointsDisplay.GetComponentInChildren<Text>().text =
+            (players.transform.GetChild(whosTurn - 1).GetComponent<Points>().points).ToString() + "p";
+
+        pointsDisplayMinigame.GetComponentInChildren<Text>().text =
+            (players.transform.GetChild(whosTurn - 1).GetComponent<Points>().points).ToString() + "p";
+
+        if (players.transform.GetChild(whosTurn - 1).GetComponent<PwUpEffect>().X2PwUpCounter > 0)
+        {
+            players.transform.GetChild(whosTurn - 1).GetComponent<Points>().multiplier = 2;
+        } else {
+            players.transform.GetChild(whosTurn - 1).GetComponent<Points>().multiplier = 1;
+        }
+        if (ee > 3)
+        {
+            tpWp5.SetActive(true);
+        }
+            
+
+        if (ee > 4)
+        {
+            ee = 0;
+            GameObject[] coins = GameObject.FindGameObjectsWithTag("coins");
+            foreach(GameObject coin in coins)
+            {
+                Destroy(coin);
+            }
+            Transform route = GameObject.Find("Route").transform;
+            if (gameObject.GetComponent<MiniGame>().blade.GetComponent<Blade>().cdrAlt != 500) gameObject.GetComponent<MiniGame>().blade.GetComponent<Blade>().cdrAlt = 0.5f;
+            for (int i = 0; i < players.transform.childCount; i++)
+            {
+                if(players.transform.GetChild(i).gameObject.activeSelf) StartCoroutine(players.transform.GetChild(i).gameObject.GetComponent<Movement>().TpBack(50,i+1));
+            }
+            foreach(Transform square in route)
+            {
+                if (square.GetComponent<SquareType>() != null && square.GetComponent<SquareType>().type == 1) Destroy(square.GetComponent<SquareType>());
+            }
+            square_29.GetComponent<SquareType>().type = 2;
+            sun.GetComponent<Light>().colorTemperature = 2407;
+            eeCollection.SetActive(true);
+            foreach (GameObject go in GameObject.FindGameObjectsWithTag("EERemove"))
+            {
+                Destroy(go);
+            }
+        }
+        if (numberPanel.GetComponent<Animator>().enabled)
+        {
+            if (players.transform.GetChild(whosTurn - 1).GetComponent<Movement>().steps > 0)
+                numberDisplay.GetComponent<Text>().text = (players.transform.GetChild(whosTurn - 1).GetComponent<Movement>().stepsLeft - 1).ToString();
+            if (players.transform.GetChild(whosTurn - 1).GetComponent<Movement>().steps == 1) StartCoroutine(EndFadeAnim(numberPanel));
+        }
+
+    }
+
+    public void EndTurn()
+    {
+        SpawnCoins();
+        players.transform.GetChild(whosTurn - 1).GetChild(1).gameObject.SetActive(false);
+        timer = 60f;
+        whosTurn++;
+        if (whosTurn == maxPlayers + 1) whosTurn = 1;
+        if (players.transform.GetChild(whosTurn - 1).GetComponent<Health>().healthPoints == 0) EndTurn();
+        hasRolled = false;
+        dice1.GetComponent<DiceControl>().ResetDice();
+        dice2.GetComponent<DiceControl>().ResetDice();
+        numberDisplay.GetComponent<Text>().text = "";
+        rollButton.GetComponent<Button>().interactable = true;
+        UpdateHealthBar();
+        endTurnButton.GetComponent<Button>().interactable = false;
+        players.transform.GetChild(whosTurn - 1).GetComponent<Movement>().canEndTurn = true;
+        if (players.transform.GetChild(whosTurn - 1).GetComponent<Movement>().litcounter > 0) players.transform.GetChild(whosTurn - 1).GetComponent<Movement>().litcounter -= 1;
+        if (players.transform.GetChild(whosTurn - 1).GetComponent<Movement>().litcounter == 0 && players.transform.GetChild(whosTurn - 1).childCount == 3) Destroy(players.transform.GetChild(whosTurn - 1).GetChild(2).gameObject);
+
+        if (players.transform.GetChild(whosTurn - 1).GetComponent<PwUpEffect>().IKPwUpCounter > 0) players.transform.GetChild(whosTurn - 1).GetComponent<PwUpEffect>().IKPwUpCounter -= 1;
+        if (players.transform.GetChild(whosTurn - 1).GetComponent<PwUpEffect>().X2PwUpCounter > 0) players.transform.GetChild(whosTurn - 1).GetComponent<PwUpEffect>().X2PwUpCounter -= 1;
+        SpawnPwUps();
+        DisplayPowerUp();
+        players.transform.GetChild(whosTurn - 1).GetChild(1).gameObject.SetActive(true);
+    }
+
 
     void SpawnCoins() {
         GameObject[] alts = GameObject.FindGameObjectsWithTag("alt");
@@ -124,31 +239,7 @@ public class MasterScript : MonoBehaviour
         Destroy(vfx);
     }
 
-    void Update(){
-        if (players.transform.GetChild(whosTurn-1).GetComponent<Movement>().steps == 0 && timer >= -10f) timer -= Time.deltaTime;
-        timerDisplay.GetComponentInChildren<Text>().text = ((int) timer).ToString();
-        if (timer <= 0f && timer >= -10f) EndTurn();
-
-        if (dice1.GetComponent<DiceControl>().resultValue != 0 && 
-            dice2.GetComponent<DiceControl>().resultValue != 0 && !hasRolled){ //si ambos dados poseen valor, sumarlos
-            MovePlayerByDice();
-        }
-        pointsDisplay.GetComponentInChildren<Text>().text = 
-            (players.transform.GetChild(whosTurn - 1).GetComponent<Points>().points).ToString() + "p";
-
-        pointsDisplayMinigame.GetComponentInChildren<Text>().text =
-            (players.transform.GetChild(whosTurn - 1).GetComponent<Points>().points).ToString() + "p";
-
-        if(players.transform.GetChild(whosTurn - 1).GetComponent<PwUpEffect>().X2PwUpCounter > 0){
-            players.transform.GetChild(whosTurn - 1).GetComponent<Points>().multiplier = 2;
-        } else {
-            players.transform.GetChild(whosTurn - 1).GetComponent<Points>().multiplier = 1;
-        }
-        if (ee > 1){
-            if(gameObject.GetComponent<MiniGame>().blade.GetComponent<Blade>().cdrAlt != 500) gameObject.GetComponent<MiniGame>().blade.GetComponent<Blade>().cdrAlt = 500; //secreto
-        }
-
-    }
+   
 
     public void UpdateHealthBar() //llamado por EndTurn() y MinGame > End()
     {
@@ -164,6 +255,7 @@ public class MasterScript : MonoBehaviour
         }
         if(players.transform.GetChild(whosTurn - 1).GetComponent<Health>().healthPoints == 0)
         {
+            endTurnButton.GetComponent<Button>().interactable = true;
             int defeatedPlayers = 0;
             for (int i = 0; i < players.transform.childCount; i++)
             {
@@ -179,41 +271,16 @@ public class MasterScript : MonoBehaviour
             if(defeatedPlayers == maxPlayers)
             {
                 ShowMessage("Todos los jugadores han caido", 500f);
-                endTurnButton.GetComponent<Button>().interactable = false;
-                rollButton.GetComponent<Button>().interactable = false;
+                endTurnButton.SetActive(false);
+                rollButton.SetActive(false);
+                shopButton.SetActive(false);
                 timer = -115f;
             }
         }
         
     }
 
-    public void EndTurn()
-    {
-        SpawnCoins();
-        if (GameObject.Find("altRouteArrow"))
-        { //eliminar flechas y seleccionar path normal.
-            players.transform.GetChild(whosTurn - 1).GetComponent<Movement>().arrowResponse = 1;
-            players.transform.GetChild(whosTurn - 1).GetComponent<Movement>().savedSteps = 0;
-        }
-        timer = 60f;
-        whosTurn++;
-        if (whosTurn == maxPlayers + 1) whosTurn = 1;
-        if (players.transform.GetChild(whosTurn - 1).GetComponent<Health>().healthPoints == 0) EndTurn();
-        hasRolled = false;
-        dice1.GetComponent<DiceControl>().ResetDice();
-        dice2.GetComponent<DiceControl>().ResetDice();
-        numberDisplay.GetComponent<Text>().text = "";
-        rollButton.GetComponent<Button>().interactable = true;
-        UpdateHealthBar();
-        endTurnButton.GetComponent<Button>().interactable = false;
-        players.transform.GetChild(whosTurn - 1).GetComponent<Movement>().canEndTurn = true;
-        if (players.transform.GetChild(whosTurn - 1).GetComponent<Movement>().litcounter > 0) players.transform.GetChild(whosTurn - 1).GetComponent<Movement>().litcounter -= 1;
-
-        if (players.transform.GetChild(whosTurn - 1).GetComponent<PwUpEffect>().IKPwUpCounter > 0) players.transform.GetChild(whosTurn - 1).GetComponent<PwUpEffect>().IKPwUpCounter -= 1;
-        if (players.transform.GetChild(whosTurn - 1).GetComponent<PwUpEffect>().X2PwUpCounter > 0) players.transform.GetChild(whosTurn - 1).GetComponent<PwUpEffect>().X2PwUpCounter -= 1;
-        SpawnPwUps();
-        DisplayPowerUp();
-    }
+    
 
     public void DisplayPowerUp()
     {
@@ -250,13 +317,13 @@ public class MasterScript : MonoBehaviour
         dice2.GetComponent<DiceControl>().isRolling = false;
         hasRolled = true;
         numberPanel.GetComponent<Animator>().enabled = true;
-        numberPanel.GetComponent<Animator>().Play("FadeInAndOutNumber");
-        StartCoroutine(EndFadeAnim(numberPanel));
+        numberPanel.GetComponent<Animator>().Play("FadeInNumber");
         players.transform.GetChild(whosTurn - 1).GetComponent<Movement>().MovePlayer();
     }
 
-    IEnumerator EndFadeAnim(GameObject panel){
-        yield return new WaitForSeconds(3f);
+    public IEnumerator EndFadeAnim(GameObject panel){
+        numberPanel.GetComponent<Animator>().Play("FadeOutNumber");
+        yield return new WaitForSeconds(1f);
         panel.GetComponent<Animator>().enabled = false;
     }
 
@@ -269,31 +336,24 @@ public class MasterScript : MonoBehaviour
 
     public void StartMinigame()
     {
-        //StartCoroutine(DrumSound());
-        PwUpPanel.SetActive(false);
-        diceCamera.SetActive(false);
-        diceCameraSprite.SetActive(false);
-        blackTrancision.SetActive(true);
-        blackTrancision.GetComponent<Animator>().enabled = true;
-        blackTrancision.GetComponent<Animator>().Play("BT1");
-        endTurnButton.GetComponent<Button>().interactable = false;
-        StartCoroutine(WaitFadeOutTrancision());
+        if (players.transform.GetChild(whosTurn - 1).GetComponent<Health>().healthPoints > 0)
+        {
+            PwUpPanel.SetActive(false);
+            diceCamera.SetActive(false);
+            diceCameraSprite.SetActive(false);
+            blackTrancision.SetActive(true);
+            blackTrancision.GetComponent<Animator>().enabled = true;
+            blackTrancision.GetComponent<Animator>().Play("BT1");
+            endTurnButton.GetComponent<Button>().interactable = false;
+            coverCanvas.SetActive(true);
+            StartCoroutine(WaitFadeOutTrancision());
+        }
+        
     }
-
-    /*IEnumerator DrumSound()
-    {
-        GetComponent<AudioSource>().PlayOneShot(drumSFX);
-        yield return new WaitForSeconds(1f);
-        GetComponent<AudioSource>().PlayOneShot(drumSFX);
-        yield return new WaitForSeconds(1f);
-        GetComponent<AudioSource>().pitch = 1.2f;
-        GetComponent<AudioSource>().PlayOneShot(drumSFX);
-        GetComponent<AudioSource>().pitch = 1f;
-    }*/
 
     IEnumerator WaitFadeOutTrancision()
     {
-        yield return new WaitForSeconds(2f);
+        yield return new WaitForSeconds(1.7f);
         blackTrancision.SetActive(false);
         blackTrancision.GetComponent<Animator>().enabled = false;
         boardCamera.SetActive(false);
@@ -304,6 +364,8 @@ public class MasterScript : MonoBehaviour
         blackTrancision2.GetComponent<Animator>().Play("BT2");
         petalTrancision.GetComponent<Animator>().enabled = true;
         petalTrancision.GetComponent<Animator>().Play("PT");
+        yield return new WaitForSeconds(0.3f);
+        coverCanvas.SetActive(false);
         StartCoroutine(WaitFadeInTrancision());
     }
 
@@ -321,13 +383,21 @@ public class MasterScript : MonoBehaviour
         diceCameraSprite.SetActive(true);
         minigameCamera.SetActive(false);
         diceCamera.GetComponent<Camera>().depth = 1;
-        endTurnButton.GetComponent<Button>().interactable = true;
+        if (!GameObject.FindGameObjectWithTag("routeArrow")) endTurnButton.GetComponent<Button>().interactable = true;
+        else isArrowPostMingame = true;
         DisplayPowerUp();
     }
 
 
     public void GameOver(){
-        ShowMessage("¡El jugador " + whosTurn + " se ha hecho con la victoria!", 500f);
+        endTurnButton.SetActive(false);
+        rollButton.SetActive(false);
+        shopButton.SetActive(false);
+        if (eeCollection.activeSelf)
+        {
+          ShowMessage("¡Easter Egg completado! ¡Espada de oro desbloqueada!", 500f);
+            PlayerPrefs.SetInt("goldenSword", 1);
+        } else ShowMessage("¡El jugador " + whosTurn + " se ha hecho con la victoria!", 500f);
     }
     public void ShowMessage(string message, float seconds)
     {
@@ -349,6 +419,7 @@ public class MasterScript : MonoBehaviour
     }
 
     public void ResetScene(){ //reiniciar escena
+        Time.timeScale = 1;
         string currentSceneName = SceneManager.GetActiveScene().name;
         SceneManager.LoadScene(currentSceneName);
     }

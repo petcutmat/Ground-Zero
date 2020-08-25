@@ -6,6 +6,7 @@ public class DiceControl : MonoBehaviour
     public bool isRolling;
     private Vector3 initPos;
     public int resultValue;
+    public bool rotFast;
 
     void Awake(){
         initPos = transform.position; //guardar posición inicial del gameobject
@@ -14,12 +15,21 @@ public class DiceControl : MonoBehaviour
 
     void Update(){        
         if(!isRolling && resultValue == 0) transform.Rotate(0, 20 * Time.deltaTime, 40 * Time.deltaTime); //girar infinitamente hasta ser lanzado
+        if(rotFast) transform.Rotate(200 * Time.deltaTime, 200 * Time.deltaTime, 200 * Time.deltaTime);
     }
 
     public void RollDice(){
         isRolling = true;
+        StartCoroutine(RotateFast());
         GetComponent<Rigidbody>().useGravity = true; //dejar caer dados
         StartCoroutine(WaitForValue());
+    }
+
+    IEnumerator RotateFast()
+    {
+        rotFast = true;
+        yield return new WaitForSeconds(0.5f);
+        rotFast = false;
     }
 
     IEnumerator WaitForValue(){

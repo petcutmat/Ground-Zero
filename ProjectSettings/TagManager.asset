@@ -15,6 +15,9 @@ TagManager:
   - square
   - pwUp
   - altRouteArrow
+  - routeArrow
+  - EERemove
+  - coins
   layers:
   - Default
   - TransparentFX

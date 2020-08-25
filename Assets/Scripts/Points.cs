@@ -6,7 +6,7 @@ public class Points : MonoBehaviour
     public int multiplier =1;
 
     private void Start(){
-        points = 2500;
+        points = 1000;
     }
 
     public int addPoints(int points)
